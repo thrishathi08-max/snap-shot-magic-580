@@ -11,7 +11,7 @@ import {
 import { PIPELINE_STAGES, analyzeUpload, type AnalyzeResult } from "@/lib/api";
 import type { Industry } from "@/lib/types";
 
-export const Route = createFileRoute("/upload")({
+export const Route = createFileRoute("/upload-feedback")({
   head: () => ({
     meta: [
       { title: "Upload Feedback — InsightFlow" },

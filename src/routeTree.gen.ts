@@ -10,53 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ExplorerRouteImport } from './routes/explorer'
-import { Route as UploadRouteImport } from './routes/upload'
+import { Route as FeedbackExplorerRouteImport } from './routes/feedback-explorer'
+import { Route as UploadFeedbackRouteImport } from './routes/upload-feedback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ExplorerRoute = ExplorerRouteImport.update({
-  id: '/explorer',
-  path: '/explorer',
+const FeedbackExplorerRoute = FeedbackExplorerRouteImport.update({
+  id: '/feedback-explorer',
+  path: '/feedback-explorer',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UploadRoute = UploadRouteImport.update({
-  id: '/upload',
-  path: '/upload',
+const UploadFeedbackRoute = UploadFeedbackRouteImport.update({
+  id: '/upload-feedback',
+  path: '/upload-feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/explorer': typeof ExplorerRoute
-  '/upload': typeof UploadRoute
+  '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/explorer': typeof ExplorerRoute
-  '/upload': typeof UploadRoute
+  '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/explorer': typeof ExplorerRoute
-  '/upload': typeof UploadRoute
+  '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explorer' | '/upload'
+  fullPaths: '/' | '/feedback-explorer' | '/upload-feedback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explorer' | '/upload'
-  id: '__root__' | '/' | '/explorer' | '/upload'
+  to: '/' | '/feedback-explorer' | '/upload-feedback'
+  id: '__root__' | '/' | '/feedback-explorer' | '/upload-feedback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ExplorerRoute: typeof ExplorerRoute
-  UploadRoute: typeof UploadRoute
+  FeedbackExplorerRoute: typeof FeedbackExplorerRoute
+  UploadFeedbackRoute: typeof UploadFeedbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,18 +68,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/explorer': {
-      id: '/explorer'
-      path: '/explorer'
-      fullPath: '/explorer'
-      preLoaderRoute: typeof ExplorerRouteImport
+    '/feedback-explorer': {
+      id: '/feedback-explorer'
+      path: '/feedback-explorer'
+      fullPath: '/feedback-explorer'
+      preLoaderRoute: typeof FeedbackExplorerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadRouteImport
+    '/upload-feedback': {
+      id: '/upload-feedback'
+      path: '/upload-feedback'
+      fullPath: '/upload-feedback'
+      preLoaderRoute: typeof UploadFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,8 +87,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ExplorerRoute: ExplorerRoute,
-  UploadRoute: UploadRoute,
+  FeedbackExplorerRoute: FeedbackExplorerRoute,
+  UploadFeedbackRoute: UploadFeedbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
