@@ -123,8 +123,7 @@ function Dashboard() {
             {emerging.map((issue) => (
               <Link
                 key={issue.id}
-                to="/issues/$issueId"
-                params={{ issueId: issue.id }}
+                to="/issues"
                 className="glass-inset block p-3 transition-colors hover:bg-card"
               >
                 <div className="flex items-center justify-between gap-3">
@@ -162,8 +161,7 @@ function Dashboard() {
           {issues.map((issue) => (
             <Link
               key={issue.id}
-              to="/issues/$issueId"
-              params={{ issueId: issue.id }}
+              to="/issues"
               className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-ink/[0.025]"
             >
               <PriorityRail level={issue.priorityLevel} />

@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CrossDomainInsightsRouteImport } from './routes/cross-domain-insights'
 import { Route as FeedbackExplorerRouteImport } from './routes/feedback-explorer'
+import { Route as IssuesRouteImport } from './routes/issues'
+import { Route as ProductDecisionsRouteImport } from './routes/product-decisions'
 import { Route as UploadFeedbackRouteImport } from './routes/upload-feedback'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +21,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrossDomainInsightsRoute = CrossDomainInsightsRouteImport.update({
+  id: '/cross-domain-insights',
+  path: '/cross-domain-insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedbackExplorerRoute = FeedbackExplorerRouteImport.update({
   id: '/feedback-explorer',
   path: '/feedback-explorer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductDecisionsRoute = ProductDecisionsRouteImport.update({
+  id: '/product-decisions',
+  path: '/product-decisions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UploadFeedbackRoute = UploadFeedbackRouteImport.update({
@@ -31,31 +49,62 @@ const UploadFeedbackRoute = UploadFeedbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cross-domain-insights': typeof CrossDomainInsightsRoute
   '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/issues': typeof IssuesRoute
+  '/product-decisions': typeof ProductDecisionsRoute
   '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cross-domain-insights': typeof CrossDomainInsightsRoute
   '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/issues': typeof IssuesRoute
+  '/product-decisions': typeof ProductDecisionsRoute
   '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cross-domain-insights': typeof CrossDomainInsightsRoute
   '/feedback-explorer': typeof FeedbackExplorerRoute
+  '/issues': typeof IssuesRoute
+  '/product-decisions': typeof ProductDecisionsRoute
   '/upload-feedback': typeof UploadFeedbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/feedback-explorer' | '/upload-feedback'
+  fullPaths:
+    | '/'
+    | '/cross-domain-insights'
+    | '/feedback-explorer'
+    | '/issues'
+    | '/product-decisions'
+    | '/upload-feedback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/feedback-explorer' | '/upload-feedback'
-  id: '__root__' | '/' | '/feedback-explorer' | '/upload-feedback'
+  to:
+    | '/'
+    | '/cross-domain-insights'
+    | '/feedback-explorer'
+    | '/issues'
+    | '/product-decisions'
+    | '/upload-feedback'
+  id:
+    | '__root__'
+    | '/'
+    | '/cross-domain-insights'
+    | '/feedback-explorer'
+    | '/issues'
+    | '/product-decisions'
+    | '/upload-feedback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CrossDomainInsightsRoute: typeof CrossDomainInsightsRoute
   FeedbackExplorerRoute: typeof FeedbackExplorerRoute
+  IssuesRoute: typeof IssuesRoute
+  ProductDecisionsRoute: typeof ProductDecisionsRoute
   UploadFeedbackRoute: typeof UploadFeedbackRoute
 }
 
@@ -68,11 +117,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cross-domain-insights': {
+      id: '/cross-domain-insights'
+      path: '/cross-domain-insights'
+      fullPath: '/cross-domain-insights'
+      preLoaderRoute: typeof CrossDomainInsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feedback-explorer': {
       id: '/feedback-explorer'
       path: '/feedback-explorer'
       fullPath: '/feedback-explorer'
       preLoaderRoute: typeof FeedbackExplorerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-decisions': {
+      id: '/product-decisions'
+      path: '/product-decisions'
+      fullPath: '/product-decisions'
+      preLoaderRoute: typeof ProductDecisionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/upload-feedback': {
@@ -87,7 +157,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CrossDomainInsightsRoute: CrossDomainInsightsRoute,
   FeedbackExplorerRoute: FeedbackExplorerRoute,
+  IssuesRoute: IssuesRoute,
+  ProductDecisionsRoute: ProductDecisionsRoute,
   UploadFeedbackRoute: UploadFeedbackRoute,
 }
 export const routeTree = rootRouteImport

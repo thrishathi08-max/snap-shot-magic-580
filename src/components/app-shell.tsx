@@ -15,7 +15,7 @@ const NAV = [
 ] as const;
 const notices = [
   { id: "n1", text: "3 new high-priority issues detected.", to: "/issues" },
-  { id: "n2", text: "Payment gateway issue increased by 42%.", to: "/issues/payment-timeouts" },
+  { id: "n2", text: "Payment gateway issue increased by 42%.", to: "/issues" },
   { id: "n3", text: "New feedback batch finished processing.", to: "/feedback-explorer" },
 ];
 
@@ -24,9 +24,9 @@ function SearchResults({ query, close }: { query: string; close: () => void }) {
   const matches = useMemo(() => {
     if (query.trim().length < 2) return [];
     return [
-      ...searchIssues(query).slice(0, 3).map((item) => ({ type: "Issue", label: item.name, to: `/issues/${item.id}` })),
-      ...searchFeedback(query).slice(0, 3).map((item) => ({ type: "Feedback", label: item.text, to: `/feedback-explorer/${item.id}` })),
-      ...searchDecisions(query).slice(0, 3).map((item) => ({ type: "Decision", label: item.problem, to: `/product-decisions/${item.id}` })),
+      ...searchIssues(query).slice(0, 3).map((item) => ({ type: "Issue", label: item.name, to: "/issues" })),
+      ...searchFeedback(query).slice(0, 3).map((item) => ({ type: "Feedback", label: item.text, to: "/feedback-explorer" })),
+      ...searchDecisions(query).slice(0, 3).map((item) => ({ type: "Decision", label: item.problem, to: "/product-decisions" })),
     ].slice(0, 7);
   }, [query]);
   if (query.trim().length < 2) return null;
@@ -60,7 +60,7 @@ function TopBar({ breadcrumb }: { breadcrumb: string }) {
       <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation" onClick={() => setMobileNav(!mobileNav)}>{mobileNav ? <X /> : <Menu />}</Button>
       <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex"><span className="font-medium text-ink">Analytics</span><span className="text-faint">/</span><span>{breadcrumb}</span></div>
       <div className="relative ml-auto flex min-w-0 items-center gap-2 sm:gap-3">
-        <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint"/><input aria-label="Search issues, feedback, decisions" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { const target = issueResult ? `/issues/${issueResult.id}` : feedbackResult ? `/feedback-explorer/${feedbackResult.id}` : decisionResult ? `/product-decisions/${decisionResult.id}` : "/feedback-explorer"; navigate({ to: target }); setQuery(""); } if (event.key === "Escape") setQuery(""); }} placeholder="Search issues, feedback, decisions…" className="w-36 rounded-lg border border-border bg-glass-strong py-2 pr-3 pl-9 text-sm placeholder:text-faint focus:border-brand/40 focus:ring-2 focus:ring-ring focus:outline-none sm:w-72"/><SearchResults query={query} close={() => setQuery("")}/></div>
+        <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint"/><input aria-label="Search issues, feedback, decisions" value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { const target = issueResult ? "/issues" : feedbackResult ? "/feedback-explorer" : decisionResult ? "/product-decisions" : "/feedback-explorer"; navigate({ to: target }); setQuery(""); } if (event.key === "Escape") setQuery(""); }} placeholder="Search issues, feedback, decisions…" className="w-36 rounded-lg border border-border bg-glass-strong py-2 pr-3 pl-9 text-sm placeholder:text-faint focus:border-brand/40 focus:ring-2 focus:ring-ring focus:outline-none sm:w-72"/><SearchResults query={query} close={() => setQuery("")}/></div>
         <div className="relative"><Button variant="outline" size="icon" aria-label="Notifications" aria-expanded={open === "notifications"} onClick={() => setOpen(open === "notifications" ? null : "notifications")}><Bell/>{!read && <span className="absolute right-1 top-1 size-2 rounded-full bg-critical"/>}</Button>{open === "notifications" && <div className="absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-popover p-3 shadow-xl"><div className="flex items-center justify-between"><p className="font-display text-sm font-semibold">Notifications</p><Button variant="ghost" size="sm" onClick={() => setRead(true)}><Check/>Mark all read</Button></div>{(read ? [] : notices).map((notice) => <Link key={notice.id} to={notice.to} onClick={() => setOpen(null)} className="mt-2 block rounded-md p-2 text-sm hover:bg-muted">{notice.text}</Link>)}{read && <p className="py-6 text-center text-sm text-muted-foreground">You’re all caught up.</p>}</div>}</div>
         <div className="relative"><Button variant="outline" className="h-9 gap-2 px-1.5 sm:pr-3" aria-label="User profile menu" aria-expanded={open === "profile"} onClick={() => setOpen(open === "profile" ? null : "profile")}><span className="grid size-7 place-items-center rounded-md bg-brand/15 font-display text-xs font-semibold text-brand">AR</span><span className="hidden text-sm font-medium sm:block">Ava Reyes</span><ChevronDown className="hidden size-3 sm:block"/></Button>{open === "profile" && <div className="absolute right-0 top-11 z-50 w-44 rounded-lg border border-border bg-popover p-1 shadow-xl">{["Profile", "Workspace", "Settings", "Sign Out"].map((label) => <button key={label} type="button" onClick={() => { setOpen(null); if (label === "Workspace") navigate({ to: "/" }); }} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-muted">{label === "Profile" && <UserRound className="size-4"/>}{label}</button>)}</div>}</div>
       </div>
