@@ -17,7 +17,7 @@ import {
 import { DATE_RANGES, getFeedback, getIssues, type DateRange } from "@/lib/api";
 import type { IndustryFilter, Sentiment } from "@/lib/types";
 
-export const Route = createFileRoute("/explorer")({
+export const Route = createFileRoute("/feedback-explorer")({
   head: () => ({
     meta: [
       { title: "Feedback Explorer — InsightFlow" },
