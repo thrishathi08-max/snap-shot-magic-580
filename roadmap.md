@@ -1,0 +1,3 @@
+- [ ] Complete InsightFlow pages and shared navigation with mock-only interactions.
+- [ ] Verify all required direct routes, details, filters, and responsive behavior.
+- [ ] Confirm preview diagnostics are clear.
