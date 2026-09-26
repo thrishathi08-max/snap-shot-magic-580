@@ -8,7 +8,11 @@ import {
   Segmented,
   formatNumber,
 } from "@/components/ui-kit";
-import { PIPELINE_STAGES, analyzeUpload, type AnalyzeResult } from "@/lib/api";
+import {
+  PIPELINE_STAGES,
+  analyzeUpload,
+  type AnalyzeResult,
+} from "@/lib/api";
 import type { Industry } from "@/lib/types";
 
 export const Route = createFileRoute("/upload-feedback")({
@@ -36,7 +40,7 @@ const INDUSTRY_OPTIONS = [
   { value: "restaurant" as Industry, label: "Restaurant" },
 ];
 
-type Status = "idle" | "processing" | "done";
+type Status = "idle" | "processing" | "done" | "error";
 
 function UploadPage() {
   const [industry, setIndustry] = useState<Industry>("ecommerce");
@@ -45,36 +49,72 @@ function UploadPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [stage, setStage] = useState(0);
   const [result, setResult] = useState<AnalyzeResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   function pick(files: FileList | null) {
     const next = files?.[0];
+
     if (!next) return;
+
     setFile(next);
     setStatus("idle");
     setResult(null);
+    setError(null);
   }
 
   async function runAnalysis() {
     if (!file) return;
+
     setStatus("processing");
     setStage(0);
+    setResult(null);
+    setError(null);
+
     timers.current.forEach(clearTimeout);
+
     timers.current = PIPELINE_STAGES.map((_, index) =>
-      setTimeout(() => setStage(index), index * 330),
+      setTimeout(() => {
+        setStage(index);
+      }, index * 330),
     );
-    const analysis = await analyzeUpload(file.name, industry);
-    timers.current.forEach(clearTimeout);
-    setResult(analysis);
-    setStatus("done");
+
+    try {
+      const analysis = await analyzeUpload(file, industry);
+
+      timers.current.forEach(clearTimeout);
+
+      setStage(PIPELINE_STAGES.length - 1);
+      setResult(analysis);
+      setStatus("done");
+    } catch (err) {
+      timers.current.forEach(clearTimeout);
+
+      setStatus("error");
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while analysing the file.",
+      );
+    }
   }
 
   function reset() {
     setFile(null);
     setResult(null);
     setStatus("idle");
-    if (inputRef.current) inputRef.current.value = "";
+    setError(null);
+    setStage(0);
+
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   }
 
   return (
@@ -111,9 +151,11 @@ function UploadPage() {
             <p className="font-display text-base font-semibold">
               Drop your CSV here
             </p>
+
             <p className="mt-1 text-sm text-muted-foreground">
               Columns: feedback_text, rating, date
             </p>
+
             <input
               ref={inputRef}
               type="file"
@@ -121,6 +163,7 @@ function UploadPage() {
               className="sr-only"
               onChange={(event) => pick(event.target.files)}
             />
+
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
@@ -135,12 +178,17 @@ function UploadPage() {
               <span className="grid size-9 place-items-center rounded-md bg-brand/10 font-mono text-[10px] font-medium text-brand">
                 CSV
               </span>
+
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{file.name}</p>
+                <p className="truncate text-sm font-medium">
+                  {file.name}
+                </p>
+
                 <p className="font-mono text-[11px] text-muted-foreground">
                   {(file.size / 1024).toFixed(1)} KB · ready to analyse
                 </p>
               </div>
+
               <button
                 type="button"
                 onClick={reset}
@@ -158,29 +206,47 @@ function UploadPage() {
               value={industry}
               onChange={setIndustry}
             />
+
             <button
               type="button"
               disabled={!file || status === "processing"}
               onClick={runAnalysis}
               className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
             >
-              {status === "processing" ? "Analysing…" : "Analyze Feedback"}
+              {status === "processing"
+                ? "Analysing…"
+                : "Analyze Feedback"}
             </button>
           </div>
+
+          {status === "error" && error ? (
+            <div className="mt-4 rounded-lg border border-critical/20 bg-critical/5 px-4 py-3 text-sm text-critical">
+              {error}
+            </div>
+          ) : null}
         </Panel>
 
         <Panel className="p-5">
-          <PanelHeader title="Pipeline" subtitle="Seven stages, in order" />
+          <PanelHeader
+            title="Pipeline"
+            subtitle="Seven stages, in order"
+          />
+
           <ol className="mt-4 space-y-3">
             {PIPELINE_STAGES.map((name, index) => {
               const state =
-                status === "done" || (status === "processing" && index < stage)
+                status === "done" ||
+                (status === "processing" && index < stage)
                   ? "done"
                   : status === "processing" && index === stage
                     ? "active"
                     : "idle";
+
               return (
-                <li key={name} className="flex items-center gap-3 text-sm">
+                <li
+                  key={name}
+                  className="flex items-center gap-3 text-sm"
+                >
                   <span
                     className={`grid size-6 shrink-0 place-items-center rounded-full font-mono text-[10px] ${
                       state === "done"
@@ -192,9 +258,12 @@ function UploadPage() {
                   >
                     {state === "done" ? "✓" : index + 1}
                   </span>
+
                   <span
                     className={
-                      state === "idle" ? "text-muted-foreground" : "font-medium"
+                      state === "idle"
+                        ? "text-muted-foreground"
+                        : "font-medium"
                     }
                   >
                     {name}
@@ -210,7 +279,11 @@ function UploadPage() {
         <Panel className="mt-4 p-5">
           <PanelHeader
             title="Analysis complete"
-            subtitle={`${industry === "ecommerce" ? "E-Commerce" : "Restaurant"} feedback processed`}
+            subtitle={`${
+              industry === "ecommerce"
+                ? "E-Commerce"
+                : "Restaurant"
+            } feedback processed`}
             action={
               <Link
                 to="/issues"
@@ -220,28 +293,38 @@ function UploadPage() {
               </Link>
             }
           />
+
           <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div className="glass-inset p-4">
               <p className="label-mono">Rows processed</p>
+
               <p className="mt-2 font-display text-2xl font-semibold">
                 {formatNumber(result.rowsProcessed)}
               </p>
             </div>
+
             <div className="glass-inset p-4">
               <p className="label-mono">Negative share</p>
+
               <p className="mt-2 font-display text-2xl font-semibold text-critical">
                 {result.negativeShare}%
               </p>
             </div>
+
             <div className="glass-inset p-4">
               <p className="label-mono">New issues</p>
+
               <p className="mt-2 font-display text-2xl font-semibold">
                 {result.newIssues}
               </p>
             </div>
+
             <div className="glass-inset p-4">
               <p className="label-mono">Top cluster</p>
-              <p className="mt-2 text-sm font-medium">{result.topIssue}</p>
+
+              <p className="mt-2 text-sm font-medium">
+                {result.topIssue}
+              </p>
             </div>
           </div>
         </Panel>

@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
+from analyzer import analyze_feedback
 
 from data import (
     get_cross_themes,
@@ -119,7 +120,6 @@ def metrics_endpoint(
         days=days,
     )
 
-
 @app.post("/analyze")
 async def analyze_endpoint(
     file: UploadFile = File(...),
@@ -127,11 +127,11 @@ async def analyze_endpoint(
 ):
     contents = await file.read()
 
-    return {
-        "status": "success",
-        "filename": file.filename,
-        "industry": industry,
-        "message": "Feedback file received successfully.",
-        "rowsReceived": len(contents.splitlines()),
-        "nextStep": "AI analysis pipeline can process this feedback.",
-    }
+    result = analyze_feedback(
+        contents,
+        file.filename or "feedback.csv",
+    )
+
+    result["industry"] = industry
+
+    return result

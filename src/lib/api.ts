@@ -203,7 +203,7 @@ export function getMetrics(
       Math.round(
         (issue.mentions *
           issue.negativePct) /
-          100,
+        100,
       ),
     0,
   );
@@ -224,7 +224,7 @@ export function getMetrics(
       issues.filter(
         (issue) =>
           issue.priorityLevel ===
-            "critical" ||
+          "critical" ||
           issue.priorityLevel === "high",
       ).length,
     totalDelta: 8.2,
@@ -380,17 +380,17 @@ export function getDecisions(
 
       return issue
         ? matchesIndustry(
-            issue.industry,
-            industry,
-          )
+          issue.industry,
+          industry,
+        )
         : true;
     })
     .sort(
       (a, b) =>
         impactRank[a.impact] -
-          impactRank[b.impact] ||
+        impactRank[b.impact] ||
         b.affectedFeedback -
-          a.affectedFeedback,
+        a.affectedFeedback,
     );
 }
 
@@ -416,45 +416,36 @@ export interface AnalyzeResult {
 /**
  * Temporary stand-in for POST /analyze.
  */
-export function analyzeUpload(
-  fileName: string,
-  industry:
-    | "ecommerce"
-    | "restaurant",
+export async function analyzeUpload(
+  file: File,
+  industry: "ecommerce" | "restaurant",
 ): Promise<AnalyzeResult> {
-  const rows =
-    400 +
-    (fileName.length % 7) *
-      137;
+  const formData = new FormData();
 
-  const issues =
-    getIssues(industry);
+  formData.append("file", file);
 
-  return new Promise(
-    (resolve) => {
-      setTimeout(
-        () =>
-          resolve({
-            rowsProcessed:
-              rows,
-            newIssues:
-              issues.filter(
-                (issue) =>
-                  issue.emerging,
-              ).length + 2,
-            negativeShare:
-              industry ===
-              "ecommerce"
-                ? 19
-                : 23,
-            topIssue:
-              issues[0]?.name ??
-              "Unclassified feedback",
-          }),
-        2600,
-      );
+  const response = await fetch(
+    `${API_BASE}/analyze?industry=${industry}`,
+    {
+      method: "POST",
+      body: formData,
     },
   );
+
+  if (!response.ok) {
+    throw new Error(
+      `Analysis failed: ${response.status}`,
+    );
+  }
+
+  const data = await response.json();
+
+  return {
+    rowsProcessed: data.rowsProcessed ?? 0,
+    newIssues: data.issues?.length ?? 0,
+    negativeShare: data.negativeShare ?? 0,
+    topIssue: data.topIssue ?? "Unclassified feedback",
+  };
 }
 
 /* -------------------------------------------------------------------------- */
